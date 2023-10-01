@@ -1,0 +1,51 @@
+# Dependencias
+node_modules/
+
+# Archivos generados por el sistema operativo
+.DS_Store
+
+# Archivos de registro
+*.log
+
+# Carpeta de entorno local (por ejemplo, configuraciones .env)
+.env
+
+# Archivos de registro de errores
+error.log
+
+# Dependencias instaladas globalmente
+npm-debug.log
+
+# Carpetas de compilación o salida generadas por herramientas de construcción
+/build/
+/dist/
+
+# Archivos de configuración específicos de IDE o editor (p. ej. Visual Studio Code)
+.vscode/
+
+# Dependencias específicas de un sistema de gestión de paquetes (por ejemplo, npm)
+package-lock.json
+yarn.lock
+
+# Archivos temporales
+*.swp
+
+# Archivos de configuración específicos del sistema (por ejemplo, .env.local)
+.env.local
+
+# Carpetas de copias de seguridad
+backup*/
+
+# Carpetas de pruebas
+__tests__/
+test/
+
+# Archivos de configuración de editor (por ejemplo, .editorconfig)
+.editorconfig
+
+# Archivos de caché o compilación
+.cache/
+.build/
+
+# Dependencias de desarrollo que solo se necesitan localmente
+# Puedes especificar aquí cualquier otra carpeta o archivo que desees ignorar
