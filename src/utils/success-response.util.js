@@ -1,10 +1,10 @@
-const successResponse = (message, code) => {
+const successResponse = (message, code, data) => {
   return {
     status: 'OK',
     code: code,
     messages: message,
     response: true,
-    result: []
+    data: data
   };
 
  

@@ -30,7 +30,7 @@ connectDB();
 
 
 const router = require('./routes/router');
-app.use('/register', router);
+app.use('/', router);
 
 
 

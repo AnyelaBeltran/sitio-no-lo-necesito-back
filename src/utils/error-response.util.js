@@ -4,7 +4,7 @@
     code: code,
     messages: message,
     response: false,
-    result: []
+    data: null
   };
 
  
