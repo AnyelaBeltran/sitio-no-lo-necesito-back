@@ -6,8 +6,8 @@ const errorResponse = require('../utils/error-response.util');
 const User = require('../models/user.model');
 
 const schemaLogin = Joi.object({
-  email: Joi.string().min(6).max(255).required().email(),
-  password: Joi.string().min(6).max(1024).required()
+  email: Joi.string().required().email(),
+  password: Joi.string().required()
 });
 
 const loginController = async (req, res) => {

@@ -22,25 +22,28 @@ const registerController = async (req, res) => {
 
   const { nombre, apellido, email, cedula, telefono, direccion, rol_id } = req.body;
 
+  console.log(email, '__________________________________________XDS');
 
   const { error } = schemaRegister.validate(req.body);
 
   if (error) return res.status(422).json(errorResponse(error.message, 422));
+ 
+
+  const isExist = await User.findOne({
+    where: {
+      email,
+      cedula,
+    },
+  });
+
   
-
-  const isEmailExist = await User.findOne({ email: req.body.email });
-  if (isEmailExist) return res.status(422).json(errorResponse('El correo electrónico ya está en uso', 422));
-
+  if (isExist) {
+    return res.status(409).json(errorResponse('El usuario ya existe', 409));
+    
+  }
   
-
-  const isCedulaExist = await User.findOne({ email: req.body.cedula });
-  if (isCedulaExist) return res.status(422).json(errorResponse('La cédula ya está en uso', 422));
-
-  
-
   if (rol_id !== undefined) return res.status(422).json(errorResponse('Error en el sistema de registro, codigo de error Aoxc45652 contacte a soporte tecnico', 422));
   
-
   const salt = await bcrypt.genSalt(10);
   const password = await bcrypt.hash(req.body.password, salt);
 

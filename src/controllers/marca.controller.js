@@ -1,11 +1,11 @@
-// marcaController.js
 
-const { z, ZodError } = require('zod');
+const { z } = require('zod');
 const { Op } = require('sequelize');
 
 const Marca = require('../models/marca.model'); // Importa tu modelo de marca
 const errorResponse = require('../utils/error-response.util');
 const successResponse = require('../utils/success-response.util');
+
 
 exports.index = async (req, res) => {
   try {
@@ -45,12 +45,11 @@ exports.show = async (req, res) => {
     }
 
 
-    if (marca.estado != 1) {
+    if (marca.estado !== 1) {
       return res.status(422).json(
         errorResponse('Marca no disponible', 422)
       );
     }
-
 
     return res.status(200).json(
       successResponse('Marca obtenida con éxito', 200, marca)
@@ -62,7 +61,6 @@ exports.show = async (req, res) => {
     );
   }
 };
-
 
 exports.create = async (req, res) => {
   const createMarcaSchema = z.object({
@@ -112,6 +110,7 @@ exports.create = async (req, res) => {
   } catch (error) {
     console.error('Error al crear la marca:', error);
 
+
     if (error instanceof z.ZodError) {
       const zodErrors = error.issues.map((issue) => {
         return {
@@ -131,9 +130,9 @@ exports.create = async (req, res) => {
     }
 
     return res.status(500).json(errorResponse('Internal server error', 500, error));
+
   }
 };
-
 
 exports.update = async (req, res) => {
   const updateMarcaSchema = z.object({
@@ -190,7 +189,7 @@ exports.update = async (req, res) => {
     marcaExistente.descripcion = descripcion;
     marcaExistente.estado = estado;
     marcaExistente.updated_at = new Date(),
-    await marcaExistente.save();
+    await marcaExistente.update();
 
     return res.status(200).json(
       successResponse('Marca actualizada con éxito', 200, marcaExistente)
@@ -220,7 +219,6 @@ exports.update = async (req, res) => {
 
   }
 };
-
 
 exports.delete = async (req, res) => {
   try {
