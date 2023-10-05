@@ -1,5 +1,3 @@
-// sequelize.config.js
-
 const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -20,4 +18,4 @@ const sequelize = new Sequelize(config.DATABASE, config.USER, config.PASSWORD, {
   logging: true,
 });
 
-module.exports = sequelize;
+module.exports = sequelize; 

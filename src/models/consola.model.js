@@ -1,5 +1,6 @@
 const sequelize = require('../../db/connection.db');
 const { DataTypes } = require('sequelize');
+const Marca = require('./marca.model');
 
 const Consola = sequelize.define('Consolas', {
   id: {
@@ -55,9 +56,25 @@ const Consola = sequelize.define('Consolas', {
     type: DataTypes.DATE,
     allowNull: false,
   },
+
+
+  imagen_path: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+
+  
+
+
 }, {
-  tableName: 'consolas', 
-  timestamps: false, 
+  tableName: 'consolas',
+  timestamps: false,
 });
+
+
+Consola.belongsTo(Marca, {
+  foreignKey: 'marca_id', 
+});
+
 
 module.exports = Consola;

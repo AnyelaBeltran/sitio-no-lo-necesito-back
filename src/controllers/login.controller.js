@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const errorResponse = require('../utils/error-response.util');
 const User = require('../models/user.model');
+const sequelize = require('../../db/connection.db'); 
 
 const schemaLogin = Joi.object({
   email: Joi.string().required().email(),
@@ -15,8 +16,19 @@ const loginController = async (req, res) => {
     const { error } = schemaLogin.validate(req.body);
     if (error) return res.status(422).json(errorResponse(error.message, 422));
 
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).json(errorResponse('Usuario no encontrado', 404));
+    const user = await User.findOne(
+      {
+        where: {
+          email: req.body.email,
+        },
+      }
+    );
+   
+
+
+
+    if (!user) return res.status(404).json(errorResponse('Usuario o contraseña incorrecto', 404));
+
 
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) return res.status(422).json(errorResponse('Usuario o contraseña incorrecto', 422));
@@ -25,6 +37,8 @@ const loginController = async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
+        nombre: user.nombre,
+        apellido: user.apellido,
         email: user.email,
         rol_id: user.rol_id,
       },

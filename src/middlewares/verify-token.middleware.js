@@ -20,11 +20,11 @@ const verifyTokenAndRole = async (req, res, next) => {
     if (!user) return res.status(401).json(errorResponse('Acceso Denegado', 401));
 
     // Verificar el rol del usuario (1 para permitir, 2 para denegar)
-    if (user.rol_id === 1) {
+    if (user.rol_id === 2) {
       // El usuario tiene un rol de 1, se le permite el acceso
       req.user = decodedToken;
       next(); // Continuamos
-    } else if (user.rol_id === 2) {
+    } else if (user.rol_id === 1) {
       // El usuario tiene un rol de 2, se le deniega el acceso
       return res.status(403).json(errorResponse('Permiso denegado', 403));
     } else {

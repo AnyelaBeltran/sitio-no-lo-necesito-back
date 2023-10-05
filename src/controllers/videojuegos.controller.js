@@ -4,47 +4,45 @@ const fs = require('fs');
 const errorResponse = require("../utils/error-response.util");
 const successResponse = require("../utils/success-response.util");
 const Consola = require("../models/consola.model")
-const Marca = require("../models/marca.model")
-
+const Categoria = require("../models/categoria.model")
+const VideoJuego = require("../models/videoJuego.model")
 
 
 exports.index = async (req, res) => {
     try {
-        // Consulta todas las consolas desde la base de datos
-        const consolas = await Consola.findAll({
-            include: [Marca],
-            where: {
-                estado: 1
-            }
+        
+        const consolas = await VideoJuego.findAll({
+            include: [Categoria, Consola],
+           
 
         });
         const consolasData = consolas.map((consola) => consola.dataValues);
 
-        return res.status(200).json(successResponse('Consolas obtenidas con éxito', 200, consolasData));
+        return res.status(201).json(successResponse('Videojuegos obtenidas con éxito', 201, consolasData));
     } catch (error) {
-        console.error('Error al obtener las consolas:', error);
+        console.error('Error al obtener las videojuegos:', error);
         return res.status(500).json(errorResponse('Error interno del servidor', 500));
     }
 };
 
 exports.show = async (req, res) => {
     try {
-        const consolaId = parseInt(req.params.id);
-        console.log(consolaId)
-        if (isNaN(consolaId) || consolaId <= 0) {
-            return res.status(400).json(errorResponse('El ID de la consola no es válido', 400));
+        const videoJuegoId = parseInt(req.params.id);
+        console.log(videoJuegoId)
+        if (isNaN(videoJuegoId) || videoJuegoId <= 0) {
+            return res.status(400).json(errorResponse('El ID de videojuego no es válido', 400));
         }
 
         // Consulta la consola por su ID en la base de datos
-        const consola = await Consola.findByPk(consolaId, {
-            include: [Marca],
+        const videoJuego = await VideoJuego.findByPk(videoJuegoId, {
+            include: [Consola, Categoria],
         });
 
-        if (!consola) {
-            return res.status(404).json(errorResponse('Consola no encontrada', 404));
+        if (!videoJuego) {
+            return res.status(404).json(errorResponse('Videojuego no encontrado', 404));
         }
 
-        return res.status(201).json(successResponse('Consola obtenida con éxito', 201, consola));
+        return res.status(201).json(successResponse('Videojuego obtenida con éxito', 201, videoJuego));
     } catch (error) {
         console.error('Error al obtener la consola:', error);
         return res.status(500).json(errorResponse('Error interno del servidor', 500));
@@ -54,11 +52,11 @@ exports.show = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { nombre, precio, stock, marca_id, descripcion, estado } = req.body;
+        const { nombre, descripcion, categoria_id, consola_id, precio, stock, estado } = req.body;
 
-        const image = req.files.file;
+        const image = req.files.selectedFile;
 
-        if (!req.files || !req.files.file) {
+        if (!req.files || !req.files.selectedFile) {
             return res.status(422).json({ message: 'Debes proporcionar una imagen' });
         }
 
@@ -66,19 +64,18 @@ exports.create = async (req, res) => {
         const createSchemaConsola = z.object({
             nombre: z.string().nonempty().min(4).max(256),
             precio: z.string().nonempty(),
+            categoria_id: z.string().nonempty(),
+            consola_id: z.string().nonempty(),
+            precio: z.string().nonempty(),
             stock: z.string().nonempty(),
-            marca_id: z.string().nonempty(),
-            descripcion: z.string().nonempty().min(4).max(256),
             estado: z.string().refine((value) => value === "1" || value === "2", {
                 message: "El campo 'estado' debe ser '1' (Activo) o '2' (Inactivo)",
             }),
         });
 
         const validatedData = createSchemaConsola.parse({
-            nombre, precio, stock, marca_id, descripcion, estado,
+            nombre, descripcion, categoria_id, consola_id, precio, stock, estado
         });
-
-
 
 
 
@@ -95,18 +92,21 @@ exports.create = async (req, res) => {
             }
         });
 
-        const nuevaConsola = await Consola.create({
+
+
+        const nuevoVideoJuego = await VideoJuego.create({
             nombre,
+            descripcion,
+            categoria_id,
+            consola_id,
             precio,
             stock,
-            marca_id,
-            descripcion,
             estado,
             created_at: new Date(),
             updated_at: new Date(),
             imagen_path: newImagePath
         });
-        res.status(201).json({ message: 'Consola creada correctamente', consola: nuevaConsola });
+        res.status(201).json({ message: 'Videojuego creado correctamente', videojuego: nuevoVideoJuego });
 
     } catch (error) {
         console.error('Error al actualiza la consola:', error);
@@ -139,36 +139,38 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, precio, stock, marca_id, descripcion, estado } = req.body;
+        const { nombre, descripcion, categoria_id, consola_id, precio, stock, estado } = req.body;
 
 
-        const image = req.files.file;
+        const image = req.files.imagen;
+        console.log(image);
 
-        if (!req.files || !req.files.file) {
+        if (!req.files || !req.files.imagen) {
             return res.status(422).json({ message: 'Debes proporcionar una imagen' });
         }
-
 
         const createSchemaConsola = z.object({
             nombre: z.string().nonempty().min(4).max(256),
             precio: z.string().nonempty(),
+            categoria_id: z.string().nonempty(),
+            consola_id: z.string().nonempty(),
+            precio: z.string().nonempty(),
             stock: z.string().nonempty(),
-            marca_id: z.string().nonempty(),
-            descripcion: z.string().nonempty().min(4).max(256),
             estado: z.string().refine((value) => value === "1" || value === "2", {
                 message: "El campo 'estado' debe ser '1' (Activo) o '2' (Inactivo)",
             }),
         });
 
         const validatedData = createSchemaConsola.parse({
-            nombre, precio, stock, marca_id, descripcion, estado,
+            nombre, descripcion, categoria_id, consola_id, precio, stock, estado
         });
 
-        // Find the consola by ID
-        const consola = await Consola.findByPk(id);
 
-        if (!consola) {
-            return res.status(404).json(errorResponse('Consola no encontrada', 404));
+        // Find the consola by ID
+        const videojuego = await VideoJuego.findByPk(id);
+
+        if (!videojuego) {
+            return res.status(404).json(errorResponse('Videjuego no encontrada', 404));
         }
 
 
@@ -191,20 +193,22 @@ exports.update = async (req, res) => {
 
 
         // Update the consola data
-        consola.nombre = nombre.toUpperCase();
-        consola.precio = precio;
-        consola.stock = stock;
-        consola.marca_id = marca_id;
-        consola.descripcion = descripcion;
-        consola.estado = estado;
-        consola.imagen_path = newImagePath;
+        videojuego.nombre = nombre.toUpperCase();
+        videojuego.precio = precio;
+        videojuego.stock = stock;
+        videojuego.categoria_id = categoria_id;
+        videojuego.consola_id = consola_id;
+        videojuego.descripcion = descripcion;
+        videojuego.estado = estado;
+        videojuego.imagen_path = newImagePath;
 
-        await consola.save(); // Use save() to update the consola
+        await videojuego.save();
 
-        return res.status(200).json(successResponse('Consola actualizada con éxito', 200, consola));
+        return res.status(200).json(successResponse('VideoJuego actualizado con éxito', 200, videojuego));
     } catch (error) {
-        console.error('Error al actualizar la consola:', error);
-        // Rest of your error handling code...
+        console.log(error);
+        console.error('Error al actualizar el videojuego:', error);
+       
     }
 };
 
@@ -215,22 +219,22 @@ exports.delete = async (req, res) => {
         const { id } = req.params;
 
         // Buscar la marca por su ID
-        const consola = await Consola.findByPk(id);
+        const videojuego = await VideoJuego.findByPk(id);
 
-        if (!consola) {
-            return res.status(404).json(errorResponse('Consola no encontrada', 404));
+        if (!videojuego) {
+            return res.status(404).json(errorResponse('videojuego no encontrada', 404));
         }
 
-        if (consola.estado == 1) {
-            return res.status(422).json(errorResponse('La consola esta en estado activo', 422));
+        if (videojuego.estado == 1) {
+            return res.status(422).json(errorResponse('el videojuego esta en estado activo', 422));
         }
 
-        // Realizar la eliminación de la marca
-        await consola.destroy();
+        
+        await videojuego.destroy();
 
-        return res.status(200).json(successResponse('Consola eliminada con éxito', 200, consola));
+        return res.status(200).json(successResponse('videojuego eliminado con éxito', 200, consola));
     } catch (error) {
-        console.error('Error al eliminar la consola:', error);
+        console.error('Error al eliminar el videojuego:', error);
         return res.status(500).json(errorResponse('Internal server error', 500, error));
     }
 };

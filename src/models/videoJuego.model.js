@@ -45,6 +45,10 @@ const VideoJuego = sequelize.define('Juego', {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  imagen_path: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   tableName: 'juegos',
   timestamps: false,
